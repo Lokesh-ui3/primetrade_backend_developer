@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-prime-dark text-gray-200 overflow-x-hidden antialiased;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-prime-card/60 backdrop-blur-xl border border-prime-border shadow-xl;
+  }
+  
+  .glass-button {
+    @apply bg-white/5 hover:bg-white/10 backdrop-blur border border-white/10 transition-all duration-300;
+  }
+}
+
+/* Custom Scrollbar for sleek dark mode */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0B0B0F; 
+}
+::-webkit-scrollbar-thumb {
+  background: #2A2A35; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4B4B5C; 
+}
