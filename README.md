@@ -1,88 +1,131 @@
-# Primetrade Backend Developer Assignment
+# 🚀 PrimeTrade – Enterprise-Grade Backend API & Web3 Dashboard
 
-![Application Overview](https://img.shields.io/badge/Stack-MERN-blue.svg)
-![Status](https://img.shields.io/badge/Status-Completed-success.svg)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-This repository contains my submission for the **Backend Developer (Intern)** assignment at Primetrade. It consists of a robust, scalable REST API natively integrated with a sleek, custom-built React frontend.
+> **Live API Documentation:** Provided natively via Swagger UI  
+> **Repository Focus:** Scalability, Security, and Seamless Assessor Experience
 
----
+## 📖 Overview
 
-## 🛠️ Technology Stack
+While many beginner backend projects stop at simple CRUD operations, this system was engineered to reflect **real-world, production-ready backend architecture**. 
 
-*   **Backend:** Node.js, Express.js
-*   **Database:** MongoDB (`mongodb-memory-server` & `mongoose`)
-*   **Authentication:** JSON Web Tokens (JWT) & `bcryptjs`
-*   **Documentation:** Swagger UI
-*   **Frontend:** React.js, Vite, Tailwind CSS (Custom Web3 aesthetic)
-
----
-
-## ✨ Key Features
-
-*   **Zero-Setup Testing Environment:** Integrated an automatic *In-Memory MongoDB Database*. Reviewers do not need to configure complex database URIs; the backend will automatically spin up its own database in your RAM to allow for immediate testing!
-*   **Secure Authentication:** User passwords are encrypted before being stored using bcrypt. Authorized endpoints generate and consume secure JWTs.
-*   **Role-Based Access Control (RBAC):** Users are separated by roles (`user` vs `admin`). Custom middleware explicitly prevents standard users from executing administrative endpoints. 
-*   **Task Management CRUD:** Fully functional Create, Read, Update, and Delete endpoints for a "Task" entity, locked to the authenticated user.
-*   **Interactive Admin Panel:** The frontend dynamically displays an advanced "User Roster" grid *only* if you are logged in as an Admin.
+It demonstrates a deeply integrated understanding of secure stateless authentication, multi-layered authorization, maintainable API versioning, and developer experience (DX). Paired with this backend is a highly polished, custom-styled React frontend featuring a modern Web3/crypto interface to provide immediate visual context to the data.
 
 ---
 
-## 🚀 How to Run Locally
+## ⚡ What Sets This Project Apart?
 
-You will need to open **two separate terminal windows**. Ensure you have Node.js (v18+) installed.
+Instead of requiring technical recruiters to waste time configuring cloud databases or pasting `.env` URLs, this project utilizes **`mongodb-memory-server`**. 
+Upon starting the backend, the Node process automatically spins up a blazing-fast, isolated MongoDB database directly in the local RAM. **Zero setup required.**
 
-### 1. Start the Backend API
+Further highlights include:
+*   **Granular Role-Based Access Control (RBAC):** True separation of concerns isolating `admin` privileges from standard `user` privileges.
+*   **Ownership-Based Data Access:** Users can only query, modify, and delete the specific tasks they own.
+*   **Live Console Logging:** Custom middleware logs all incoming HTTP traffic directly to the terminal with precise timestamps.
+*   **Enterprise Structuring:** Strict separation of standard Routes, Business Logic, Models, and Middleware.
+
+---
+
+## 🔐 Authentication & Authorization Flow
+
+Security is handled entirely via **JSON Web Tokens (JWT)** and **bcryptjs**.
+
+1. **Authentication (Identity Check):** Passwords are cryptographically hashed before hitting the database. Upon login, a JWT is signed and returned. All protected endpoints mandate a valid `Bearer Token` in the authorization header.
+2. **Authorization (Permission Check):** A custom `authorize(...roles)` middleware protects sensitive routes. For example, if a standard user attempts to hit the `/api/v1/admin/users` endpoint to scrape user data, the request is immediately rejected with a `403 Forbidden` status. 
+
+*(Note: For the purpose of this internship assignment, a temporary "Account Role" dropdown was added to the Frontend Registration page so assessors can immediately test both viewpoints!).*
+
+---
+
+## 🗄️ Database Design
+
+The schema leverages **Mongoose** strict typing, custom validators, and lifecycle hooks.
+
+### `User` Collection
+*   `name`: String (Required)
+*   `email`: String (Required, Unique, Regex Validated)
+*   `password`: String (Hashed, `select: false` natively to prevent accidental leakage)
+*   `role`: Enum (`'user'` | `'admin'`), defaults to `'user'`
+
+### `Task` Collection (Order Logs)
+*   `title`: String (Required, Truncated at 100 chars)
+*   `description`: String (Required, max 500 chars)
+*   `status`: Enum (`'pending'` | `'completed'`), defaults to `'pending'`
+*   `user`: ObjectId (Reference to the User Model)
+
+---
+
+## 🌐 API Architecture & Design
+
+All routes are explicitly versioned (`/api/v1/`) to allow for seamless future iterations without breaking legacy clients. 
+
+### Identity Routes
+*   `POST /api/v1/auth/register` - Create an account
+*   `POST /api/v1/auth/login` - Authenticate & retrieve JWT
+
+### Task Routes (Requires Authentication JWT)
+*   `GET /api/v1/tasks` - Retrieve tasks owned by the current user
+*   `POST /api/v1/tasks` - Generate a new task
+*   `PUT /api/v1/tasks/:id` - Update task parameters/status
+*   `DELETE /api/v1/tasks/:id` - Destroy a specific task
+
+### Administrative Routes (Requires 'Admin' Role)
+*   `GET /api/v1/admin/users` - Retrieve a full roster of registered platform users.
+
+---
+
+## 🎨 Premium Frontend Integration
+
+To effectively demonstrate the API without relying solely on Postman, a **Vite + React** frontend is provided. 
+Instead of a generic template, it was custom-engineered to match the Primetrade aesthetic:
+*   **Glassmorphism & Micro-animations:** Frost-glass panels, glowing interactive elements, and an animated gradient blob background.
+*   **Dynamic UI Rendering:** The dashboard dynamically reshapes itself based on the JWT payload. If the token claims an `admin` role, the UI unwraps a hidden "Admin Roster" module fetching data from the protected backend routes.
+
+---
+
+## 🚀 Setup & Execution 
+
+Because of the built-in memory server, launching this project takes less than 30 seconds. You will need two terminal windows.
+
+### 1. Launch the Backend
 ```bash
 # Navigate to the backend directory
 cd backend
 
-# Install all backend dependencies
+# Install dependencies
 npm install
 
-# Start the development server
+# Start the server (Nodemon enabled)
 npm run dev
 ```
-> You will see a message confirming: `Using In-Memory MongoDB Server for 0-setup testing. MongoDB Connected!`. The server runs on `http://localhost:5000`.
+> **Output:** `Server running on port 5000` | `Using In-Memory MongoDB Server for 0-setup testing.`
 
-### 2. Start the Frontend Application
+*Want to browse the API endpoints?* Visit **[http://localhost:5000/api-docs](http://localhost:5000/api-docs)** to utilize the auto-generated Swagger UI!
+
+### 2. Launch the Frontend
 ```bash
-# In a new terminal, navigate to the frontend directory
+# Open a new terminal and navigate to the frontend directory
 cd frontend
 
-# Install all frontend dependencies
+# Install dependencies
 npm install
 
-# Start the Vite development server
+# Start the Vite development build
 npm run dev
 ```
-> The frontend will launch. Open `http://localhost:5173` in your browser.
+> **Action:** Click the `http://localhost:5173` link provided in your terminal to view the application in your browser.
 
 ---
 
-## 📖 API Documentation (Swagger)
+## 📈 Scalability Blueprint
 
-All backend endpoints are structurally documented using Swagger. While the backend server is running, simply navigate to:
+While this system perfectly fulfills the assignment scope, production applications require heavier infrastructure. The codebase is structured so transitioning is trivial:
 
-👉 **[http://localhost:5000/api-docs](http://localhost:5000/api-docs)** 
-
----
-
-## 🧪 Testing the Role-Based Access Control (RBAC)
-
-To make grading this assignment effortless, I have temporarily exposed the ability to **select your Account Role** during registration on the frontend. 
-
-1. Launch both the backend and frontend.
-2. Go to the **Register** page.
-3. Use the glowing dropdown to select **System Administrator (Admin)**.
-4. Once registered and redirected to the Dashboard, you will see a newly unlocked **Admin: User Roster** panel that fetches data from the protected `/api/v1/admin/users` endpoint!
-5. Log out, register a standard "User" account, and observe that the admin layout vanishes.
-
----
-
-## 📈 Scalability Note
-
-Scaling strategies (including Load Balancing, Docker containerization, and Redis caching) have been detailed in the dedicated [scalability.md](./scalability.md) file included in the root of this repository.
-
----
-
-*Thank you for reviewing my submission. I look forward to the opportunity to contribute to Primetrade.*
+*   **Microservices:** The modular routes (`auth` vs `tasks` vs `admin`) can easily be decoupled into separate Node servers communicating via Kafka or RabbitMQ.
+*   **Caching Layers:** Redis could be implemented in the controller layer to cache the `GET /api/v1/tasks` query, reducing load on the primary database for read-heavy operations.
+*   **Containerization:** Both the `backend` and `frontend` can be containerized using Docker and scaled horizontally behind an AWS Application Load Balancer or an Nginx reverse proxy using clustering.
+*   **Production DB Switching:** Simply providing an active `MONGO_URI` in the `.env` file immediately bypasses the testing memory-server and connects to a persistent, sharded MongoDB Atlas cluster.
